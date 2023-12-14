@@ -1,1 +1,5 @@
 key.json
+ssh/adcm_cluster*
+terraform.tfstate*
+.terraform
+*lock.hcl

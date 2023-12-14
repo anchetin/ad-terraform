@@ -1,0 +1,5 @@
+centos7_image_id        = "fd8c6njq7cqrlr96p4r3"
+resources_zone          = "ru-central1-b"
+public_dns_zone_name    = "cluster-yctesting"
+public_dns_zone         = "cluster.yctesting.eu.org."
+public_dns_adcm         = "adcm.cluster.yctesting.eu.org."
