@@ -1,11 +1,3 @@
-### variables
-variable "centos7_image_id" {}
-variable "resources_zone" {}
-variable "public_dns_zone" {}
-variable "public_dns_zone_name" {}
-variable "public_dns_adcm" {}
-
-
 terraform {
   required_providers {
     yandex = {
@@ -19,6 +11,15 @@ provider "yandex" {
   zone = var.resources_zone
 }
 
+
+
+
+### variables
+variable "centos7_image_id" {}
+variable "resources_zone" {}
+variable "public_dns_zone" {}
+variable "public_dns_zone_name" {}
+variable "public_dns_adcm" {}
 
 
 ### Network and subnets

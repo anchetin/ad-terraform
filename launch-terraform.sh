@@ -11,6 +11,13 @@ export YC_FOLDER_ID
 
 variables_file="variables.tfvars"
 
+# Check if init done
+FILE="./.terraform"
+if ! test -f "$FILE"; then
+   echo "Run ./init-terraform.sh first"
+   exit 1
+fi
+
 # Check if no arguments were passed
 if [ $# -eq 0 ]; then
     echo "No arguments provided. Please use -p/--plan, -v/--validate or -a/--apply flag."
@@ -47,3 +54,8 @@ if [ "$1" == "-a" ] || [ "$1" == "--apply" ]; then
     terraform apply -var-file="$variables_file"
 fi
 
+# Check for destroy flag
+if [ "$1" == "-d" ] || [ "$1" == "--destroy" ]; then
+    echo "Running terraform destroy..."
+    terraform destroy -var-file="$variables_file"
+fi
