@@ -36,4 +36,6 @@ resource "yandex_compute_instance" "adcm-host" {
     user-data = "${file(var.adcm_metadata_path)}"
     ssh-keys  = "${var.adcm_ssh_username}:${file(var.adcm_ssh_public_key)}"
   }
+
+  allow_stopping_for_update = true
 }
