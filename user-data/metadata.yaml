@@ -4,3 +4,5 @@ users:
     groups: sudo
     shell: /bin/bash
     sudo: 'ALL=(ALL) NOPASSWD:ALL'
+    ssh-authorized-keys:
+      - ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAEgGKal0/EjjlGGGtsY5n1iqIPhA6oAGAYC2CArMQlG admin@adcm

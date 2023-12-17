@@ -13,7 +13,7 @@ variables_file="variables.tfvars"
 
 # Check if init done
 FILE="./.terraform"
-if ! test -f "$FILE"; then
+if ! test -d "$FILE"; then
    echo "Run ./init-terraform.sh first"
    exit 1
 fi
@@ -23,6 +23,15 @@ if [ $# -eq 0 ]; then
     echo "No arguments provided. Please use -p/--plan, -v/--validate or -a/--apply flag."
     exit 1
 fi
+
+# Compile metadata
+cat ./user-data/metadata_template.yaml > ./user-data/metadata.yaml
+ssh_pub=$(cat ssh/adcm_cluster.pub)
+
+printf "
+    ssh-authorized-keys:
+      - $ssh_pub" >> ./user-data/metadata.yaml
+
 
 # Function for terraform validate
 function validate {

@@ -12,14 +12,21 @@ provider "yandex" {
 }
 
 
-
-
 ### variables
-variable "centos7_image_id" {}
 variable "resources_zone" {}
-variable "public_dns_zone" {}
+
+variable "centos7_image_id" {}
+variable "metadata_path" {}
+variable "ssh_public_key" {}
+variable "adcm_ssh_username" {}
+
 variable "public_dns_zone_name" {}
+variable "public_dns_zone" {}
 variable "public_dns_adcm" {}
+
+variable "local_dns_zone" {}
+
+variable "allowed_external_cidr" {type = list}
 
 
 ### Network and subnets
@@ -34,7 +41,7 @@ resource "yandex_dns_zone" "cluster_zone" {
 
 resource "yandex_dns_zone" "cluster_local_zone" {
   name   = "cluster-local"
-  zone   = "cluster.local."
+  zone   = var.local_dns_zone
   public = false
   private_networks = [yandex_vpc_network.arenadata-network.id]
 }
@@ -83,8 +90,26 @@ resource "yandex_vpc_security_group" "adcm-sg" {
   ingress {
     protocol       = "TCP"
     description    = "allow ssh"
-    v4_cidr_blocks = ["46.146.230.116/32"]
+    v4_cidr_blocks = var.allowed_external_cidr
     port           = 22
+  }
+  ingress {
+    protocol       = "TCP"
+    description    = "allow https"
+    v4_cidr_blocks = var.allowed_external_cidr
+    port           = 443
+  }
+  ingress {
+    protocol       = "TCP"
+    description    = "allow http"
+    v4_cidr_blocks = var.allowed_external_cidr
+    port           = 80
+  }
+  ingress {
+    protocol       = "TCP"
+    description    = "allow adcm 8000"
+    v4_cidr_blocks = var.allowed_external_cidr
+    port           = 8000
   }
 
   egress {
@@ -118,14 +143,14 @@ resource "yandex_compute_instance" "adcm-host" {
     nat         = true
     nat_ip_address = yandex_vpc_address.adcm_external_ip.external_ipv4_address[0].address
     dns_record {
-        fqdn = "adcm.cluster.local."
+        fqdn = "adcm.${var.local_dns_zone}"
         dns_zone_id = yandex_dns_zone.cluster_local_zone.id
     }
     security_group_ids = [yandex_vpc_security_group.adcm-sg.id]
   }
 
   metadata = {
-    user-data = "${file("user-data/metadata.yaml")}"
-    ssh-keys  = "admin:${file("ssh/adcm_cluster.pub")}"
+    user-data = "${file(var.metadata_path)}"
+    ssh-keys  = "${var.adcm_ssh_username}:${file(var.ssh_public_key)}"
   }
 }
