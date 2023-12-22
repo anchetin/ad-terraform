@@ -12,9 +12,7 @@ provider "yandex" {
 }
 
 
-### variables
 variable "resources_zone" {}
-
 
 variable "centos7_image_id" {}
 
@@ -25,7 +23,6 @@ variable "adcm_ssh_username" {}
 variable "adb_metadata_path" {}
 variable "adb_ssh_public_key" {}
 variable "adb_ssh_username" {}
-
 
 variable "public_dns_zone_name" {}
 variable "public_dns_zone" {}

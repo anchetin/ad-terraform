@@ -71,12 +71,39 @@ resource "yandex_vpc_security_group_rule" "adcm-internal-sg-r1" {
   port                   = 8000
   protocol               = "TCP"
 }
+resource "yandex_vpc_security_group_rule" "adcm-internal-sg-r2" {
+  security_group_binding = yandex_vpc_security_group.adcm-internal-sg.id
+  direction              = "ingress"
+  description            = "allow grafana web from adb"
+  security_group_id      = yandex_vpc_security_group.adb-hosts-sg.id
+  port                   = 3000
+  protocol               = "TCP"
+}
+resource "yandex_vpc_security_group_rule" "adcm-internal-sg-r3" {
+  security_group_binding = yandex_vpc_security_group.adcm-internal-sg.id
+  direction              = "ingress"
+  description            = "allow graphite web from adb"
+  security_group_id      = yandex_vpc_security_group.adb-hosts-sg.id
+  port                   = 80
+  protocol               = "TCP"
+}
 
 
 resource "yandex_vpc_security_group" "adb-hosts-sg" {
   name        = "adb-hosts-sg"
   description = "for ADB hosts"
   network_id  = yandex_vpc_network.arenadata-network.id
+
+  ingress {
+    protocol          = "ANY"
+    description       = "any between hosts"
+    predefined_target = "self_security_group"
+  }
+  ingress {
+    protocol          = "ANY"
+    description       = "any from ADCM"
+    security_group_id = yandex_vpc_security_group.adcm-internal-sg.id
+  }
 
   ingress {
     protocol       = "TCP"

@@ -14,7 +14,14 @@ resource "yandex_dns_zone" "cluster_local_zone" {
   public           = false
   private_networks = [yandex_vpc_network.arenadata-network.id]
 }
-
+# If monitoring on ACDM host
+resource "yandex_dns_recordset" "monitoring-in-adcm" {
+  zone_id = yandex_dns_zone.cluster_local_zone.id
+  name    = "monitoring.cluster.local."
+  type    = "A"
+  ttl     = 200
+  data    = [yandex_compute_instance.adcm-host.network_interface.0.ip_address]
+}
 
 resource "yandex_vpc_subnet" "adcm-subnet" {
   name           = "adcm-subnet"
@@ -28,6 +35,7 @@ resource "yandex_vpc_subnet" "adb-subnet" {
   v4_cidr_blocks = ["10.152.1.0/24"]
   zone           = "ru-central1-b"
   network_id     = yandex_vpc_network.arenadata-network.id
+  route_table_id = yandex_vpc_route_table.egress-route-adb.id
 }
 resource "yandex_vpc_gateway" "egress-gateway-adb" {
   name = "egress-gateway-adb"
