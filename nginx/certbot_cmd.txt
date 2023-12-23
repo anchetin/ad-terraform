@@ -1,0 +1,7 @@
+https://github.com/PykupeJIbc/certbot-dns-yandexcloud?tab=readme-ov-file
+
+certbot certonly \
+--authenticator dns-yandexcloud \
+--dns-yandexcloud-credentials ~/.secrets/certbot/yandexcloud.ini \
+--non-interactive --agree-tos --email cloud.chetin@yandex.ru \
+-d '*.cluster.yctesting.eu.org'

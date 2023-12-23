@@ -1,5 +1,7 @@
 #!/bin/bash
 
+cd ./terraform-infra || exit 1
+
 username="admin"
 
 adcm_host_external="adcm.cluster.yctesting.eu.org"

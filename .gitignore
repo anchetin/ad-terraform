@@ -1,7 +1,6 @@
 key.json
-ssh/adcm_cluster*
-ssh/adb_cluster*
+terraform-infra/ssh
 terraform.tfstate*
 .terraform
 *lock.hcl
-user-data/ad*
+terraform-infra/user-data/*.yaml

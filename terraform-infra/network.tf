@@ -60,6 +60,7 @@ resource "yandex_vpc_subnet" "adqm-subnet" {
 }
 
 
+
 resource "yandex_vpc_address" "adcm_external_ip" {
   name = "adcm_external_ip"
 
@@ -67,10 +68,38 @@ resource "yandex_vpc_address" "adcm_external_ip" {
     zone_id = var.resources_zone
   }
 }
-resource "yandex_dns_recordset" "dns_adcm_host" {
+
+resource "yandex_vpc_subnet" "nginx-subnet" {
+  name           = "nginx-subnet"
+  v4_cidr_blocks = ["10.152.3.0/24"]
+  zone           = "ru-central1-b"
+  network_id     = yandex_vpc_network.arenadata-network.id
+}
+resource "yandex_vpc_address" "nginx_external_ip" {
+  name = "nginx_external_ip"
+
+  external_ipv4_address {
+    zone_id = var.resources_zone
+  }
+}
+resource "yandex_dns_recordset" "dns_adcm_nginx" {
   zone_id = yandex_dns_zone.cluster_zone.id
   name    = var.public_dns_adcm
   type    = "A"
   ttl     = 600
-  data    = [yandex_vpc_address.adcm_external_ip.external_ipv4_address[0].address]
+  data    = [yandex_vpc_address.nginx_external_ip.external_ipv4_address[0].address]
+}
+resource "yandex_dns_recordset" "dns_grafana_nginx" {
+  zone_id = yandex_dns_zone.cluster_zone.id
+  name    = var.public_dns_grafana
+  type    = "A"
+  ttl     = 600
+  data    = [yandex_vpc_address.nginx_external_ip.external_ipv4_address[0].address]
+}
+resource "yandex_dns_recordset" "dns_graphite_nginx" {
+  zone_id = yandex_dns_zone.cluster_zone.id
+  name    = var.public_dns_graphite
+  type    = "A"
+  ttl     = 600
+  data    = [yandex_vpc_address.nginx_external_ip.external_ipv4_address[0].address]
 }

@@ -56,17 +56,12 @@ resource "yandex_vpc_security_group" "adcm-internal-sg" {
   name       = "adcm-internal-sg"
   network_id = yandex_vpc_network.arenadata-network.id
 
-  #   ingress {
-  #     protocol       = "TCP"
-  #     description    = "allow ssh"
-  #     v4_cidr_blocks = var.allowed_external_cidr
-  #     port           = 22
-  #   }
 }
+# To prevent terraform loops
 resource "yandex_vpc_security_group_rule" "adcm-internal-sg-r1" {
   security_group_binding = yandex_vpc_security_group.adcm-internal-sg.id
   direction              = "ingress"
-  description            = "allow adcm 8000 from adb"
+  description            = "allow adcm 8000"
   security_group_id      = yandex_vpc_security_group.adb-hosts-sg.id
   port                   = 8000
   protocol               = "TCP"
@@ -74,7 +69,7 @@ resource "yandex_vpc_security_group_rule" "adcm-internal-sg-r1" {
 resource "yandex_vpc_security_group_rule" "adcm-internal-sg-r2" {
   security_group_binding = yandex_vpc_security_group.adcm-internal-sg.id
   direction              = "ingress"
-  description            = "allow grafana web from adb"
+  description            = "allow grafana web"
   security_group_id      = yandex_vpc_security_group.adb-hosts-sg.id
   port                   = 3000
   protocol               = "TCP"
@@ -82,8 +77,33 @@ resource "yandex_vpc_security_group_rule" "adcm-internal-sg-r2" {
 resource "yandex_vpc_security_group_rule" "adcm-internal-sg-r3" {
   security_group_binding = yandex_vpc_security_group.adcm-internal-sg.id
   direction              = "ingress"
-  description            = "allow graphite web from adb"
+  description            = "allow graphite web"
   security_group_id      = yandex_vpc_security_group.adb-hosts-sg.id
+  port                   = 80
+  protocol               = "TCP"
+}
+
+resource "yandex_vpc_security_group_rule" "adcm-internal-sg-r4" {
+  security_group_binding = yandex_vpc_security_group.adcm-internal-sg.id
+  direction              = "ingress"
+  description            = "allow adcm 8000"
+  security_group_id      = yandex_vpc_security_group.nginx-external-sg.id
+  port                   = 8000
+  protocol               = "TCP"
+}
+resource "yandex_vpc_security_group_rule" "adcm-internal-sg-r5" {
+  security_group_binding = yandex_vpc_security_group.adcm-internal-sg.id
+  direction              = "ingress"
+  description            = "allow grafana web"
+  security_group_id      = yandex_vpc_security_group.nginx-external-sg.id
+  port                   = 3000
+  protocol               = "TCP"
+}
+resource "yandex_vpc_security_group_rule" "adcm-internal-sg-r6" {
+  security_group_binding = yandex_vpc_security_group.adcm-internal-sg.id
+  direction              = "ingress"
+  description            = "allow graphite web"
+  security_group_id      = yandex_vpc_security_group.nginx-external-sg.id
   port                   = 80
   protocol               = "TCP"
 }
@@ -233,6 +253,42 @@ resource "yandex_vpc_security_group" "master-slave-adb" {
     predefined_target = "self_security_group"
     from_port         = 1025
     to_port           = 65535
+  }
+
+}
+
+resource "yandex_vpc_security_group" "nginx-external-sg" {
+  name       = "nginx-external"
+  network_id = yandex_vpc_network.arenadata-network.id
+
+  ingress {
+    protocol          = "ICMP"
+    description    = "allow ICMP from allowed"
+    v4_cidr_blocks = var.allowed_external_cidr
+  }
+  ingress {
+    protocol       = "TCP"
+    description    = "allow http"
+    v4_cidr_blocks = var.allowed_external_cidr
+    port           = 80
+  }
+  ingress {
+    protocol       = "TCP"
+    description    = "allow https"
+    v4_cidr_blocks = var.allowed_external_cidr
+    port           = 443
+  }
+  ingress {
+    protocol       = "TCP"
+    description    = "ssh"
+    v4_cidr_blocks = var.allowed_external_cidr
+    port           = 22
+  }
+
+  egress {
+    protocol       = "ANY"
+    description    = "allow internet"
+    v4_cidr_blocks = ["0.0.0.0/0"]
   }
 
 }

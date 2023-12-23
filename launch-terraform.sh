@@ -1,5 +1,7 @@
 #!/bin/bash
 
+cd ./terraform-infra || exit 1
+
 YC_TOKEN="$(yc iam create-token)"
 export YC_TOKEN
 
@@ -11,16 +13,10 @@ export YC_FOLDER_ID
 
 variables_file="variables.tfvars"
 
-metadata_template="./user-data/metadata_template.yaml"
-adcm_metadata="./user-data/adcm_metadata.yaml"
-adcm_ssh_pub_key="./ssh/adcm_cluster.pub"
-adb_metadata="./user-data/adb_metadata.yaml"
-adb_ssh_pub_key="./ssh/adb_cluster.pub"
 
 # Check if init done
-FILE="./.terraform"
-if ! test -d "$FILE"; then
-   echo "Run ./init-terraform.sh first"
+if ! test -d "./.terraform"; then
+   echo "Run ./first_setup/init-terraform.sh first"
    exit 1
 fi
 
@@ -29,21 +25,6 @@ if [ $# -eq 0 ]; then
     echo "No arguments provided. Please use -p/--plan, -v/--validate or -a/--apply flag."
     exit 1
 fi
-
-# Compile metadata
-cat $metadata_template > $adcm_metadata
-ssh_pub=$(cat $adcm_ssh_pub_key)
-
-printf "
-    ssh-authorized-keys:
-      - $ssh_pub" >> $adcm_metadata
-
-cat $metadata_template > $adb_metadata
-ssh_pub=$(cat $adb_ssh_pub_key)
-
-printf "
-    ssh-authorized-keys:
-      - $ssh_pub" >> $adb_metadata
 
 
 # Function for terraform validate

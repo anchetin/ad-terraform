@@ -1,5 +1,7 @@
 #!/bin/bash
 
+cd ./terraform-infra || exit 1
+
 YC_TOKEN="$(yc iam create-token)"
 export YC_TOKEN
 

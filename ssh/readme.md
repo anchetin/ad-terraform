@@ -1,1 +1,0 @@
-this folder is just for ssh keys for hosts
