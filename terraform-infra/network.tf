@@ -26,14 +26,14 @@ resource "yandex_dns_recordset" "monitoring-in-adcm" {
 resource "yandex_vpc_subnet" "adcm-subnet" {
   name           = "adcm-subnet"
   v4_cidr_blocks = ["10.152.0.0/24"]
-  zone           = "ru-central1-b"
+  zone           = var.resources_zone
   network_id     = yandex_vpc_network.arenadata-network.id
 }
 
 resource "yandex_vpc_subnet" "adb-subnet" {
   name           = "adb-subnet"
   v4_cidr_blocks = ["10.152.1.0/24"]
-  zone           = "ru-central1-b"
+  zone           = var.resources_zone
   network_id     = yandex_vpc_network.arenadata-network.id
   route_table_id = yandex_vpc_route_table.egress-route-adb.id
 }
@@ -55,8 +55,9 @@ resource "yandex_vpc_route_table" "egress-route-adb" {
 resource "yandex_vpc_subnet" "adqm-subnet" {
   name           = "adqm-subnet"
   v4_cidr_blocks = ["10.152.2.0/24"]
-  zone           = "ru-central1-b"
+  zone           = var.resources_zone
   network_id     = yandex_vpc_network.arenadata-network.id
+  route_table_id = yandex_vpc_route_table.egress-route-adb.id
 }
 
 
@@ -72,7 +73,7 @@ resource "yandex_vpc_address" "adcm_external_ip" {
 resource "yandex_vpc_subnet" "nginx-subnet" {
   name           = "nginx-subnet"
   v4_cidr_blocks = ["10.152.3.0/24"]
-  zone           = "ru-central1-b"
+  zone           = var.resources_zone
   network_id     = yandex_vpc_network.arenadata-network.id
 }
 resource "yandex_vpc_address" "nginx_external_ip" {

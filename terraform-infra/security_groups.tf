@@ -107,6 +107,30 @@ resource "yandex_vpc_security_group_rule" "adcm-internal-sg-r6" {
   port                   = 80
   protocol               = "TCP"
 }
+resource "yandex_vpc_security_group_rule" "adcm-internal-sg-r7" {
+  security_group_binding = yandex_vpc_security_group.adcm-internal-sg.id
+  direction              = "ingress"
+  description            = "allow adqm 8000"
+  security_group_id      = yandex_vpc_security_group.adqm-internal-sg.id
+  port                   = 8000
+  protocol               = "TCP"
+}
+resource "yandex_vpc_security_group_rule" "adcm-internal-sg-r8" {
+  security_group_binding = yandex_vpc_security_group.adcm-internal-sg.id
+  direction              = "ingress"
+  description            = "allow adqm grafana web"
+  security_group_id      = yandex_vpc_security_group.adqm-internal-sg.id
+  port                   = 3000
+  protocol               = "TCP"
+}
+resource "yandex_vpc_security_group_rule" "adcm-internal-sg-r9" {
+  security_group_binding = yandex_vpc_security_group.adcm-internal-sg.id
+  direction              = "ingress"
+  description            = "allow adqm graphite web"
+  security_group_id      = yandex_vpc_security_group.adqm-internal-sg.id
+  port                   = 80
+  protocol               = "TCP"
+}
 
 
 resource "yandex_vpc_security_group" "adb-hosts-sg" {
@@ -262,7 +286,7 @@ resource "yandex_vpc_security_group" "nginx-external-sg" {
   network_id = yandex_vpc_network.arenadata-network.id
 
   ingress {
-    protocol          = "ICMP"
+    protocol       = "ICMP"
     description    = "allow ICMP from allowed"
     v4_cidr_blocks = var.allowed_external_cidr
   }
@@ -291,4 +315,34 @@ resource "yandex_vpc_security_group" "nginx-external-sg" {
     v4_cidr_blocks = ["0.0.0.0/0"]
   }
 
+}
+
+resource "yandex_vpc_security_group" "adqm-internal-sg" {
+  name       = "adqm-internal-sg"
+  network_id = yandex_vpc_network.arenadata-network.id
+
+  ingress {
+    protocol       = "TCP"
+    description    = "allow ssh"
+    v4_cidr_blocks = ["10.0.0.0/8"]
+    port           = 22
+  }
+  ingress {
+    protocol       = "TCP"
+    description    = "allow client connects"
+    v4_cidr_blocks = ["10.0.0.0/8"]
+    port           = 8123
+  }
+  ingress {
+    protocol       = "TCP"
+    description    = "allow client connects"
+    v4_cidr_blocks = ["10.0.0.0/8"]
+    port           = 9000
+  }
+
+  egress {
+    protocol       = "ANY"
+    description    = "allow internet"
+    v4_cidr_blocks = ["0.0.0.0/0"]
+  }
 }
